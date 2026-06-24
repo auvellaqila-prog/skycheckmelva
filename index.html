@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkyCheck — Informasi Cuaca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="main-header">
+  <div class="header-container">
+    <div class="logo">🌤️ Sky<span>Check</span></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="settingsBtn" title="Pengaturan API Key">
+        <span class="btn-icon">⚙️</span>
+        <span class="btn-text">API Key</span>
+        <span class="key-indicator" id="keyIndicator"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+  <!-- ── SEARCH BAR ── -->
+  <div class="search-container">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Cari kota (e.g. Surakarta, London, Tokyo)..." />
+      <button onclick="searchWeather()" class="search-btn">
+        <span class="search-icon">🔍</span>
+        <span>Cari</span>
+      </button>
+    </div>
+    
+    <!-- ── KOTA CEPAT ── -->
+    <div class="quick-cities">
+      <span class="city-pill" onclick="quickSearch('Surakarta')">📍 Surakarta</span>
+      <span class="city-pill" onclick="quickSearch('Jakarta')">🏙️ Jakarta</span>
+      <span class="city-pill" onclick="quickSearch('Surabaya')">⚓ Surabaya</span>
+      <span class="city-pill" onclick="quickSearch('Yogyakarta')">🏛️ Yogyakarta</span>
+      <span class="city-pill" onclick="quickSearch('Bali')">🌴 Bali</span>
+      <span class="city-pill" onclick="quickSearch('Bandung')">🌿 Bandung</span>
+    </div>
+  </div>
+
+  <!-- ── CONTAINER HASIL ── -->
+  <div class="weather-container">
+    <!-- State awal / loading / error -->
+    <div id="weatherContainer">
+      <div class="state-box">
+        <div class="s-icon">🌤️</div>
+        <p>Cari nama kota untuk melihat informasi cuaca real-time.</p>
+      </div>
+    </div>
+
+    <!-- Main Card (tersembunyi sampai ada data) -->
+    <div class="main-card" id="mainCard">
+      <div class="dashboard-grid">
+        <!-- Hero Weather (Left column) -->
+        <div class="dash-hero">
+          <div class="city-name" id="cityName"></div>
+          <div class="hero-temp-box">
+            <div class="temp-big" id="tempBig"></div>
+            <div class="weather-icon" id="weatherIcon"></div>
+          </div>
+          <div class="condition" id="condition"></div>
+          <div class="feels-like" id="feelsLike"></div>
+          <div class="datetime" id="datetime"></div>
+        </div>
+
+        <!-- Detailed Stats (Right column) -->
+        <div class="dash-details">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-emoji">💧</span>
+              <div class="stat-info">
+                <div class="stat-label">Kelembapan</div>
+                <div class="stat-value" id="statHumidity">—</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-emoji">🌬️</span>
+              <div class="stat-info">
+                <div class="stat-label">Angin</div>
+                <div class="stat-value" id="statWind">—</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-emoji">🔵</span>
+              <div class="stat-info">
+                <div class="stat-label">Tekanan Udara</div>
+                <div class="stat-value" id="statPressure">—</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-emoji">👁️</span>
+              <div class="stat-info">
+                <div class="stat-label">Jarak Pandang</div>
+                <div class="stat-value" id="statVis">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sun-card">
+            <div class="sun-item">
+              <div class="s-icon">🌅</div>
+              <div class="s-info">
+                <div class="s-label">Matahari Terbit</div>
+                <div class="s-val" id="sunrise">—</div>
+              </div>
+            </div>
+            <div class="sun-item">
+              <div class="s-icon">🌇</div>
+              <div class="s-info">
+                <div class="s-label">Matahari Terbenam</div>
+                <div class="s-val" id="sunset">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /main-card -->
+  </div><!-- /weather-container -->
+</main>
+
+<!-- ── SETTINGS MODAL ── -->
+<div id="settingsModal" class="modal">
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>⚙️ Pengaturan API Key</h3>
+      <button class="close-btn" id="closeModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Masukkan API Key OpenWeatherMap Anda untuk memuat data cuaca secara real-time.</p>
+      <div class="api-help">
+        Daftar gratis di
+        <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a>. Key baru biasanya aktif dalam waktu ~2 jam setelah pendaftaran.
+      </div>
+      <div class="api-input-row">
+        <input type="password" id="apiKeyInput" placeholder="Paste API Key Anda di sini..." />
+        <button onclick="saveApiKey()" id="saveKeyBtn">Simpan</button>
+      </div>
+      <div id="keyStatus"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Data cuaca disediakan oleh <strong>OpenWeatherMap API</strong></p>
+  <p>Mini Project Web Programming &bull; UMS &bull; 2026</p>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>
+
